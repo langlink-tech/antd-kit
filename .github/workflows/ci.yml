@@ -58,4 +58,28 @@ jobs:
         run: |
           set -euo pipefail
           printf '\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" >> .npmrc
+          if mise exec -- pnpm view @langlink-tech/antd-kit@0.1.0 version >/dev/null 2>&1; then
+            echo "0.1.0 already published"
+            exit 0
+          fi
           mise exec -- pnpm publish --no-git-checks
+
+  grant-package-access:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Grant consumer repositories package read
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for repo in ll-lqa-test plunet-api-server public-mailbox-feishu-cloudflare langlink-lqa-tapd langlink-tools plunet-chrome-plugin langlink-tech-portal; do
+            echo "grant read: ${repo}"
+            gh api --method PUT \
+              "orgs/langlink-tech/packages/npm/antd-kit/repos/${repo}" \
+              -f permission=read \
+              || echo "grant skipped for ${repo}"
+          done
