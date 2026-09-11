@@ -1,6 +1,11 @@
 # @langlink-tech/antd-kit
 
-Private LangLink shared Ant Design patterns. First published export is `/motion`.
+LangLink shared Ant Design patterns. First published export is `/motion`.
+
+The source repository is public so host CI can install a pinned git SHA without a
+cross-repo token. GitHub Packages remains restricted (`publishConfig.access:
+restricted`); switching consumers to the registry still needs `packages` scope
+and Actions package access.
 
 ## Install
 
