@@ -1,0 +1,78 @@
+name: Engineering Task
+description: Track a refactor, chore, spike, or internal follow-up that deserves durable tracking.
+title: "[Task] "
+labels:
+  - kind/chore
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for refactors, technical debt, investigations, and internal follow-ups that should outlive a single PR.
+  - type: dropdown
+    id: task-kind
+    attributes:
+      label: Task Type
+      options:
+        - refactor
+        - chore
+        - spike
+        - follow-up
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - frontend
+        - backend
+        - devops
+        - data
+        - docs
+        - cross-cutting
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One short paragraph describing the task.
+      placeholder: Consolidate duplicate retry logic in the sync worker.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / Problem
+      description: What pain, risk, or debt is this addressing.
+      placeholder: |
+        - Existing duplication or risk:
+        - Why it should be addressed:
+    validations:
+      required: true
+  - type: textarea
+    id: in-scope
+    attributes:
+      label: In Scope
+      placeholder: |
+        - Consolidate retry policy helpers.
+        - Update affected worker tests.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      placeholder: |
+        - [ ] Duplicate retry implementations are removed.
+        - [ ] Existing worker behavior remains unchanged.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / Links
+      description: Related issues, incidents, or review threads.
+      placeholder: Related PR review, incident doc, follow-up reference
+    validations:
+      required: false

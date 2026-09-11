@@ -1,0 +1,47 @@
+{
+  "name": "@langlink-tech/antd-kit",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "LangLink shared Ant Design patterns. First ship is /motion only.",
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./motion": {
+      "types": "./dist/motion.d.ts",
+      "import": "./dist/motion.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "pack:check": "node scripts/assert-pack.mjs",
+    "verify": "pnpm typecheck && pnpm test && pnpm pack:check"
+  },
+  "peerDependencies": {
+    "antd": "^6.6.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "antd": "6.6.2",
+    "jsdom": "^27.0.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.11"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
+  }
+}
