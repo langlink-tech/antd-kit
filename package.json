@@ -1,6 +1,6 @@
 {
   "name": "@langlink-tech/antd-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "description": "LangLink shared Ant Design patterns. First ship is /motion only.",
