@@ -115,3 +115,5 @@ Until this PR is merged and 0.3.0 is published, test consumers against the exact
 consumer PR and commit the lockfile. Do not claim registry publication for a
 candidate. Roll back package artifact, lockfile and adopted callers together to
 the prior known-good revision.
+
+Node 22 and Node 24 are verified host runtimes. Navigation `landmarkProps` preserves host landmark layout attributes while the menu props remain separate.

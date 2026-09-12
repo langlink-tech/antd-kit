@@ -6,7 +6,7 @@
   "description": "LangLink shared Ant Design component patterns",
   "packageManager": "pnpm@11.10.0",
   "engines": {
-    "node": ">=22 <23"
+    "node": "^22.0.0 || ^24.0.0"
   },
   "files": [
     "dist"
