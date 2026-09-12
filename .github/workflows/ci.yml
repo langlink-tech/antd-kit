@@ -119,7 +119,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          PACKAGE_PATH="orgs/langlink-tech/packages/npm/%40langlink-tech%2Fantd-kit"
+          # gh api encodes the path. Pre-encoding @scope/name 404s as
+          # Package not found. Org npm packages are addressed as `antd-kit`.
+          PACKAGE_PATH="orgs/langlink-tech/packages/npm/antd-kit"
           gh api "${PACKAGE_PATH}" --jq .name
           gh api --method PUT "${PACKAGE_PATH}/actions/permissions" -f access=selected
           failed=0
