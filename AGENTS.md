@@ -1,6 +1,6 @@
 # antd-kit
 
-LangLink shared Ant Design pattern library. Exports are motion, table, dashboard, form and navigation.
+LangLink shared Ant Design pattern library. Exports are motion, table, pro-table, dashboard, form, navigation and s2.
 
 ## Commands
 
