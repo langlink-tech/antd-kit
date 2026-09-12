@@ -1,42 +1,36 @@
 # @langlink-tech/antd-kit
 
-LangLink shared Ant Design patterns. First published export is `/motion`.
+LangLink shared Ant Design patterns. React, React DOM and AntD are host peers.
 
-The source repository is public so host CI can install a pinned git SHA without a
-cross-repo token. GitHub Packages remains restricted (`publishConfig.access:
-restricted`); switching consumers to the registry still needs `packages` scope
-and Actions package access.
+## Exports (0.2.0)
 
-## Install
+- `/motion`: existing reduced-motion subscription and host override.
+- `/table`: `DataTable` preserves host rows, keys, refs, sorting, selection and paging; adds loading/empty/error recovery semantics.
+- `/dashboard`: `MetricCard` composes Card + Statistic + a host trend; `DashboardPanel` handles loading/error/empty/content states.
+- `/form`: `FormDialog` validates a host form before submit; `FormErrorSummary` focuses nested invalid fields; `FormActions` disables repeat submission while pending.
+- `/navigation`: `NavigationMenu` gives controlled Menu a required named navigation landmark; routing and permissions stay with the host.
 
-GitHub Packages, restricted:
+Official references: [Table](https://ant.design/components/table/), [Form in Modal and scroll to error](https://ant.design/components/form/), [Menu](https://ant.design/components/menu/), [Pro analysis dashboard](https://github.com/ant-design/ant-design-pro/tree/master/src/pages/dashboard/analysis).
 
-```ini
-@langlink-tech:registry=https://npm.pkg.github.com
+```tsx
+import { DataTable } from '@langlink-tech/antd-kit/table';
+import { MetricCard } from '@langlink-tech/antd-kit/dashboard';
+import { FormActions } from '@langlink-tech/antd-kit/form';
+import { NavigationMenu } from '@langlink-tech/antd-kit/navigation';
+
+<DataTable rowKey="id" columns={columns} dataSource={rows} loading={loading}
+  emptyState={{ description: emptyDescription, action: retryAction }} />
+<MetricCard statistic={{ title: metricTitle, value: metricValue }} trend={trend} />
+<FormActions submitLabel={saveLabel} submitting={saving} secondary={cancelAction} />
+<NavigationMenu label={navigationLabel} items={items} selectedKeys={selectedKeys} onClick={navigate} />
 ```
 
-```sh
-pnpm add @langlink-tech/antd-kit@0.1.0
-```
+The caller controls form visibility, pending state, reset-on-open policy and application errors. Root providers, locale, theme persistence and business drafts remain local. No raw re-export facade or second theme provider is introduced.
 
-Actions consumers need `packages: read` and `NODE_AUTH_TOKEN` from the runtime. Do not assume same-organization packages are readable without that permission.
+## Installation and validation
 
-## Motion
+GitHub Packages is restricted; existing consuming hosts use immutable vendored tarballs where package access is not available. Before publication, consume the exact reviewed `pnpm pack` candidate and record its source commit and SHA-256. Do not claim a candidate version is published. Roll back artifact, lockfile and callers together.
 
-```ts
-import {
-  ReducedMotionProvider,
-  usePrefersReducedMotion,
-  useReducedMotion,
-} from "@langlink-tech/antd-kit/motion";
+`pnpm verify` runs typecheck, meaningful behavior tests, build and packed export checks. The package is verified with React 19 / AntD 6.6.2. AntD 5 / React 18 hosts must migrate and validate first.
 
-const reduceMotion = usePrefersReducedMotion();
-
-<ReducedMotionProvider reduceMotion={reduceMotion}>
-  {children}
-</ReducedMotionProvider>
-```
-
-SSR initial value is `true`. The system hook listens to `prefers-reduced-motion` and cleans up. Hosts that need an override pass `reduceMotion` into `ReducedMotionProvider`.
-
-`/shell` is not shipped. Product copies stay local until a third repo has a stable matching API.
+ProTable and S2 are the next PR in this stack, with isolated optional peers; they are not exported by this layer.
