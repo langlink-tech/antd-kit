@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   verify:
@@ -18,6 +17,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
 
       - name: Install mise tools from .mise.toml
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
@@ -59,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
-          printf '\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" >> .npmrc
+          printf '@langlink-tech:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" > "${HOME}/.npmrc"
           if mise exec -- pnpm view "@langlink-tech/antd-kit@${VERSION}" version >/dev/null 2>&1; then
             echo "${VERSION} already published"
           else
@@ -85,7 +86,7 @@ jobs:
         with:
           install: true
 
-      - name: Install and roll back from GitHub Packages
+      - name: Install and uninstall published package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -93,8 +94,9 @@ jobs:
           VERSION="$(node -p "require('./package.json').version")"
           WORK="$(mktemp -d)"
           STORE="$(mktemp -d)"
-          printf '@langlink-tech:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" > "${WORK}/.npmrc"
+          printf '@langlink-tech:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" > "${HOME}/.npmrc"
           printf '{"name":"antd-kit-consume-smoke","private":true,"type":"module"}\n' > "${WORK}/package.json"
+          printf 'minimumReleaseAge: 10080\nminimumReleaseAgeExclude:\n  - "@langlink-tech/antd-kit"\n' > "${WORK}/pnpm-workspace.yaml"
           mise exec -- pnpm --dir "${WORK}" --store-dir "${STORE}" add "@langlink-tech/antd-kit@${VERSION}"
           (
             cd "${WORK}"
@@ -105,40 +107,3 @@ jobs:
             echo "::error::import succeeded after remove"
             exit 1
           fi
-
-  grant-package-access:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - name: Grant consumer repositories package read
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          PACKAGE_PATH="orgs/langlink-tech/packages/npm/%40langlink-tech%2Fantd-kit"
-          gh api "${PACKAGE_PATH}" --jq .name
-          gh api --method PUT "${PACKAGE_PATH}/actions/permissions" -f access=selected
-          failed=0
-          # Numeric IDs only: GITHUB_TOKEN cannot GET sibling repos.
-          for pair in \
-            ll-lqa-test:1177095833 \
-            plunet-api-server:1044635925 \
-            public-mailbox-feishu-cloudflare:1213796511 \
-            langlink-lqa-tapd:1267473801 \
-            langlink-tools:575714131 \
-            plunet-chrome-plugin:1191824845 \
-            langlink-tech-portal:1217703807
-          do
-            name="${pair%%:*}"
-            id="${pair##*:}"
-            echo "grant read: ${name} (${id})"
-            if ! gh api --method PUT "${PACKAGE_PATH}/actions/permissions/repositories/${id}"; then
-              echo "::error::grant failed for ${name}"
-              failed=1
-            fi
-          done
-          exit "${failed}"
