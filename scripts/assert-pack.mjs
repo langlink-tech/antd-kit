@@ -34,11 +34,11 @@ try {
   for (const name of ["react", "react-dom", "antd"]) {
     symlinkSync(path.join(root, "node_modules", name), path.join(unpackDir, "node_modules", name), "dir");
   }
-  for (const name of ["motion", "table", "form", "dashboard", "navigation"]) {
+  for (const name of ["motion", "table", "form", "dashboard", "navigation", "feedback", "overlay"]) {
     execFileSync(process.execPath, ["--input-type=module", "-e",
       `await import(${JSON.stringify(path.join(unpackDir, "package", "dist"))} + "/${name}.js")`], { stdio: "inherit" });
   }
-  for (const name of ["motion", "table", "form", "dashboard", "navigation"]) {
+  for (const name of ["motion", "table", "form", "dashboard", "navigation", "feedback", "overlay"]) {
     const source = readFileSync(path.join(unpackDir, "package", "dist", `${name}.js`), "utf8");
     if (/@ant-design\/pro-components|@antv\/s2/.test(source)) throw new Error(`optional dependency leaked into ${name}`);
   }

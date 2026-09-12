@@ -1,6 +1,6 @@
 # antd-kit
 
-LangLink shared Ant Design pattern library. Exports are motion, table, pro-table, dashboard, form, navigation and s2.
+LangLink shared Ant Design pattern library. Exports are motion, table, pro-table, dashboard, form, navigation, s2, feedback and overlay.
 
 ## Commands
 
@@ -13,7 +13,7 @@ LangLink shared Ant Design pattern library. Exports are motion, table, pro-table
 - React, React DOM, and antd are peer dependencies provided by the host.
 - Keep patterns policy-focused; do not add raw component re-export facades or KitProvider.
 - ProTable and S2 must stay in isolated optional-peer entries.
-- The fleet expansion contract and source inventory are in dotfiles/specs/antd-shared-component-library-2026-09/fleet-governance-2026-09-12.md.
+- The fleet expansion contract and source inventory are in dotfiles/specs/antd-shared-component-library-2026-09/fleet-governance-wave-2-2026-09.md.
 - Hosts keep root providers, locale, and theme persistence.
 - Do not store tokens, credentials, or publish logs in the repository.
 
