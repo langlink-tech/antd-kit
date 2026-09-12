@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { Button, Modal, Space } from "antd";
+import { Button, Flex, Modal, Space } from "antd";
 /** Official Form-in-Modal composition. Validation never closes the dialog. */
 export function FormDialog({ form, onOk, destroyOnHidden = true, ...props }) {
     async function submit() {
@@ -22,6 +22,7 @@ export function FormErrorSummary({ form, title, errors }) {
     return _jsxs("section", { role: "alert", "aria-label": title, children: [_jsx("strong", { children: title }), _jsx("ul", { children: errors.map(({ name, errors: messages }) => _jsx("li", { children: _jsx(Button, { type: "link", onClick: () => form.scrollToField(name, { focus: true }), children: messages.join("; ") }) }, JSON.stringify(name))) })] });
 }
 /** Secondary action precedes the primary submit; submit is disabled while pending. */
-export function FormActions({ submitLabel, submitting, secondary, submitProps }) {
-    return _jsxs(Space, { children: [secondary, _jsx(Button, { ...submitProps, type: "primary", htmlType: "submit", loading: submitting, disabled: submitting || submitProps?.disabled, children: submitLabel })] });
+export function FormActions({ block, submitLabel, submitting, secondary, submitProps }) {
+    const submit = _jsx(Button, { ...submitProps, block: block || submitProps?.block, type: "primary", htmlType: "submit", loading: submitting, disabled: submitting || submitProps?.disabled, children: submitLabel });
+    return block ? _jsxs(Flex, { vertical: true, gap: "small", style: { width: "100%" }, children: [secondary, submit] }) : _jsxs(Space, { children: [secondary, submit] });
 }

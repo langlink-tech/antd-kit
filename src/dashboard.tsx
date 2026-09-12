@@ -1,4 +1,5 @@
-import { Alert, Card, Empty, Skeleton, Statistic, type CardProps, type StatisticProps } from "antd";
+import { usePrefersReducedMotion } from "./motion.js";
+import { Alert, Card, Empty, Skeleton, Statistic, type CardProps, type StatisticProps, theme } from "antd";
 import type { ReactNode } from "react";
 
 export interface MetricCardProps extends Omit<CardProps, "children"> {
@@ -21,7 +22,9 @@ export interface DashboardPanelProps extends Omit<CardProps, "loading"> {
 }
 
 export function DashboardPanel({ loading, error, empty, emptyDescription, recovery, children, ...props }: DashboardPanelProps) {
-  return <Card {...props}>{loading ? <Skeleton active /> : error ?
+  const reduceMotion = usePrefersReducedMotion();
+  const { token } = theme.useToken();
+  return <Card {...props}>{loading ? <Skeleton active={!reduceMotion && token.motion !== false} /> : error ?
     <Alert type="error" title={error} action={recovery} /> : empty ?
       <Empty description={emptyDescription}>{recovery}</Empty> : children}</Card>;
 }

@@ -20,6 +20,10 @@ describe("data table state and host contracts", () => {
     fireEvent.click(screen.getAllByRole("checkbox")[1]!);
     expect(change.mock.calls[0]?.[0]).toEqual(["a"]);
   });
+  it("preserves host loading placeholders when no shared empty state is requested", () => {
+    render(<DataTable rowKey="id" dataSource={[]} loading locale={{emptyText:"Host loading placeholder"}} />);
+    expect(screen.getByText("Host loading placeholder")).toBeTruthy();
+  });
   it("does not show an empty-state recovery while initially loading", () => {
     render(<DataTable rowKey="id" dataSource={[]} loading={{spinning:true}} emptyState={{description:"No rows",action:<button>Retry</button>}} />);
     expect(screen.queryByText("No rows")).toBeNull();
@@ -74,4 +78,11 @@ it("exposes a named navigation landmark and preserves controlled selection", () 
  expect(screen.getByRole("navigation",{name:"Primary"})).toBeTruthy();
  fireEvent.click(screen.getByText("Work"));
  expect(click.mock.calls[0]?.[0].key).toBe("work");
+});
+
+it("keeps full-width submit controls inside a full-width action group", () => {
+  render(<FormActions block submitLabel="Save all" submitting />);
+  const submit=screen.getByRole("button",{name:/Save all/});
+  expect(submit.hasAttribute("disabled")).toBe(true);
+  expect(submit.parentElement?.style.width).toBe("100%");
 });
