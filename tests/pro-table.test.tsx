@@ -16,3 +16,13 @@ it("keeps explicitly disabled paging and selection disabled",()=>{
  expect(probe.props.pagination).toBe(false);
  expect(probe.props.rowSelection).toBe(false);
 });
+
+interface UserRow { id: string; name: string; }
+interface UserSearch { name?: string; }
+it("accepts interface rows, default search parameters and the official third generic",()=>{
+ const row:UserRow={id:"a",name:"Alpha"};
+ const view=render(<QueryTable<UserRow> rowKey="id" dataSource={[row]} />);
+ expect(probe.props.dataSource).toEqual([row]);
+ view.rerender(<QueryTable<UserRow,UserSearch,"text"> rowKey="id" params={{name:"Alpha"}} />);
+ expect(probe.props.params).toEqual({name:"Alpha"});
+});

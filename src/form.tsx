@@ -1,4 +1,4 @@
-import { Button, Modal, Space, type ButtonProps, type FormInstance, type ModalProps } from "antd";
+import { Button, Flex, Modal, Space, type ButtonProps, type FormInstance, type ModalProps } from "antd";
 import type { ReactNode } from "react";
 
 export interface FormDialogProps extends Omit<ModalProps, "onOk" | "footer"> {
@@ -36,6 +36,7 @@ export function FormErrorSummary({ form, title, errors }: FormErrorSummaryProps)
 }
 
 export interface FormActionsProps {
+  block?: boolean;
   submitLabel: ReactNode;
   submitting?: boolean;
   secondary?: ReactNode;
@@ -43,7 +44,8 @@ export interface FormActionsProps {
 }
 
 /** Secondary action precedes the primary submit; submit is disabled while pending. */
-export function FormActions({ submitLabel, submitting, secondary, submitProps }: FormActionsProps) {
-  return <Space>{secondary}<Button {...submitProps} type="primary" htmlType="submit"
-    loading={submitting} disabled={submitting || submitProps?.disabled}>{submitLabel}</Button></Space>;
+export function FormActions({ block, submitLabel, submitting, secondary, submitProps }: FormActionsProps) {
+  const submit = <Button {...submitProps} block={block || submitProps?.block} type="primary" htmlType="submit"
+    loading={submitting} disabled={submitting || submitProps?.disabled}>{submitLabel}</Button>;
+  return block ? <Flex vertical gap="small" style={{width:"100%"}}>{secondary}{submit}</Flex> : <Space>{secondary}{submit}</Space>;
 }

@@ -11,7 +11,7 @@ export type DataTableProps<T extends object> = TableProps<T> & {
 
 export function DataTable<T extends object>({ emptyState, locale, loading, ...props }: DataTableProps<T>) {
   const isLoading = typeof loading === "object" ? loading.spinning !== false : loading === true;
-  const emptyText = isLoading ? null : emptyState ? (
+  const emptyText = emptyState ? isLoading ? null : (
     emptyState.error ? <div role="status">{emptyState.description}{emptyState.action}</div>
       : <Empty description={emptyState.description}>{emptyState.action}</Empty>
   ) : locale?.emptyText;

@@ -46,7 +46,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "pack:check": "node scripts/assert-pack.mjs",
-    "verify": "pnpm typecheck && pnpm test && pnpm pack:check"
+    "verify": "pnpm release:status && pnpm typecheck && pnpm test && pnpm pack:check",
+    "changeset": "changeset",
+    "version:packages": "changeset version",
+    "release:status": "changeset status --since origin/main"
   },
   "peerDependencies": {
     "antd": "^6.6.1",
@@ -66,7 +69,8 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "typescript": "~5.9.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@changesets/cli": "3.0.2"
   },
   "publishConfig": {
     "access": "restricted",

@@ -1,8 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useRef, useState } from "react";
-import { Alert } from "antd";
+import { Alert, Spin } from "antd";
 /** Official PivotSheet lifecycle, dynamically loaded and cleaned up on every update. */
-export function AnalysisSheet({ dataCfg, options, label, accessibleFallback, themeCfg, configure, onError }) {
+export function AnalysisSheet({ dataCfg, options, label, accessibleFallback, loading, themeCfg, configure, resolveOptions, onError }) {
     const host = useRef(null);
     const [error, setError] = useState();
     useEffect(() => {
@@ -38,13 +38,14 @@ export function AnalysisSheet({ dataCfg, options, label, accessibleFallback, the
             }
         }
         setError(undefined);
-        void import("@antv/s2").then(async ({ PivotSheet: Sheet }) => {
+        void import("@antv/s2").then(async (engine) => {
+            const { PivotSheet: Sheet } = engine;
             if (cancelled || !host.current)
                 return;
-            sheet = new Sheet(host.current, dataCfg, { ...options, width: host.current.clientWidth || options.width });
+            sheet = new Sheet(host.current, dataCfg, { ...options, ...resolveOptions?.(engine), height: options.height, width: host.current.clientWidth || options.width });
             if (themeCfg)
                 sheet.setThemeCfg(themeCfg);
-            configure?.(sheet);
+            configure?.(sheet, engine);
             await sheet.render();
             if (cancelled || !host.current)
                 return;
@@ -56,6 +57,6 @@ export function AnalysisSheet({ dataCfg, options, label, accessibleFallback, the
             observer.observe(host.current);
         }).catch(report);
         return () => { cancelled = true; observer?.disconnect(); sheet?.destroy(); };
-    }, [dataCfg, options, themeCfg, configure, onError]);
-    return _jsxs("section", { "aria-label": label, children: [error ? _jsx(Alert, { type: "error", title: error }) : null, _jsx("div", { ref: host, role: "img", "aria-label": label, style: { height: options.height } }), accessibleFallback] });
+    }, [dataCfg, options, themeCfg, configure, resolveOptions, onError]);
+    return _jsxs("section", { "aria-label": label, children: [error ? _jsx(Alert, { type: "error", title: error }) : null, _jsx(Spin, { spinning: loading ?? false, "aria-label": label, children: _jsx("div", { ref: host, role: "img", "aria-label": label, style: { height: options.height } }) }), accessibleFallback] });
 }

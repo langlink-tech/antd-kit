@@ -65,3 +65,20 @@ describe("S2 lifecycle",()=>{
  });
 
 });
+
+it("keeps the accessible alternative outside the canvas loading overlay",async()=>{
+ render(<AnalysisSheet dataCfg={dataCfg} options={options} loading label="Analysis" accessibleFallback={<table><tbody><tr><td>Alpha: 1</td></tr></tbody></table>} />);
+ await waitFor(()=>expect(state.instances[0]?.render).toHaveBeenCalledOnce());
+ expect(screen.getByRole("table").closest(".ant-spin-container")).toBeNull();
+});
+
+it("resolves engine-dependent options before configuring the lazy instance",async()=>{
+ const order:string[]=[];
+ const resolveOptions=vi.fn(()=>{order.push("options");return {hierarchyType:"grid" as const};});
+ const configure=vi.fn(()=>{order.push("configure");});
+ render(<AnalysisSheet dataCfg={dataCfg} options={options} label="Analysis" resolveOptions={resolveOptions} configure={configure} accessibleFallback={<p>Data</p>} />);
+ await waitFor(()=>expect(state.instances[0]?.render).toHaveBeenCalledOnce());
+ expect(order).toEqual(["options","configure"]);
+ expect(resolveOptions).toHaveBeenCalledWith(expect.objectContaining({PivotSheet:expect.any(Function)}));
+ expect(configure).toHaveBeenCalledWith(state.instances[0],expect.objectContaining({PivotSheet:expect.any(Function)}));
+});

@@ -1,6 +1,6 @@
-import { type ProTableProps } from "@ant-design/pro-components";
+import { type ProTableProps, type ParamsType } from "@ant-design/pro-components";
 /** Management query-table policy; request, filters, selection and exports stay local. */
-export type QueryTableProps<T extends Record<string, unknown>, U extends Record<string, unknown>> = ProTableProps<T, U> & {
-    rowKey: NonNullable<ProTableProps<T, U>["rowKey"]>;
+export type QueryTableProps<T extends object, U extends ParamsType = ParamsType, ValueType = "text"> = ProTableProps<T, U, ValueType> & {
+    rowKey: NonNullable<ProTableProps<T, U, ValueType>["rowKey"]>;
 };
-export declare function QueryTable<T extends Record<string, unknown>, U extends Record<string, unknown>>({ pagination, rowSelection, ...props }: QueryTableProps<T, U>): import("react").JSX.Element;
+export declare function QueryTable<T extends object, U extends ParamsType = ParamsType, ValueType = "text">({ pagination, rowSelection, ...props }: QueryTableProps<T, U, ValueType>): import("react").JSX.Element;
