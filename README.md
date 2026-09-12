@@ -1,6 +1,6 @@
 # @langlink-tech/antd-kit
 
-LangLink shared Ant Design patterns. Shared patterns for tables, dashboards, forms, navigation and analysis.
+LangLink shared Ant Design patterns. Shared patterns for tables, dashboards, forms, navigation, analysis, state surfaces and overlay shells.
 
 The source repository is public so host CI can install a pinned git SHA without a
 cross-repo token. GitHub Packages remains restricted (`publishConfig.access:
@@ -41,9 +41,9 @@ SSR initial value is `true`. The system hook listens to `prefers-reduced-motion`
 
 `/shell` is not shipped. Product copies stay local until a third repo has a stable matching API.
 
-## Governed component patterns (0.3)
+## Governed component patterns (0.4)
 
-The six new entries are additive patterns, not renamed upstream exports. Host
+The entries are additive patterns, not renamed upstream exports. Host
 providers, data requests, validation, permissions, selection and routing remain
 in the application. Import only the entry needed by a page. ProTable and S2 are
 optional peers; importing the other entries does not load either engine.
@@ -56,12 +56,15 @@ optional peers; importing the other entries does not load either engine.
 | `/form` | `FormDialog`, `FormErrorSummary`, `FormActions` | [Form in Modal, scroll to error](https://ant.design/components/form/) |
 | `/navigation` | `NavigationMenu` | [Controlled Menu](https://ant.design/components/menu/), named navigation landmark |
 | `/s2` | `AnalysisSheet` | [S2 pivot example](https://s2.antv.antgroup.com/examples/basic/pivot), render/destroy/resize lifecycle |
+| `/feedback` | `EmptyState`, `ContentLoading`, `PageResult` | [Empty](https://ant.design/components/empty/), [Skeleton](https://ant.design/components/skeleton/), [Spin](https://ant.design/components/spin/), [Result](https://ant.design/components/result/) |
+| `/overlay` | `FormDrawer`, `PreviewDialog`, `ConfirmAction`, `useAppConfirm` | [Form in Drawer](https://ant.design/components/form/), [Modal](https://ant.design/components/modal/), [Popconfirm](https://ant.design/components/popconfirm/), [App](https://ant.design/components/app/) |
 
 ```tsx
 import { DataTable } from '@langlink-tech/antd-kit/table';
 import { MetricCard, DashboardPanel } from '@langlink-tech/antd-kit/dashboard';
 import { FormActions } from '@langlink-tech/antd-kit/form';
 import { NavigationMenu } from '@langlink-tech/antd-kit/navigation';
+import { EmptyState, PageResult } from '@langlink-tech/antd-kit/feedback';
 
 <DataTable rowKey="id" columns={columns} dataSource={rows}
   loading={loading} pagination={pagination} onChange={onChange}
@@ -74,6 +77,8 @@ import { NavigationMenu } from '@langlink-tech/antd-kit/navigation';
 <NavigationMenu label={navigationLabel} items={items}
   selectedKeys={selectedKeys} onClick={navigate} />
 <FormActions submitLabel={saveLabel} submitting={saving} secondary={cancelAction} />
+<EmptyState description={emptyDescription} action={retryAction} />
+<PageResult status="404" title={missingTitle} extra={homeAction} />
 ```
 
 `FormDialog` validates an optional host `FormInstance` before invoking `onOk`.
@@ -110,7 +115,7 @@ and verify first; this release does not widen peer support by assumption.
 
 ## Candidate consumption and rollback
 
-Until this PR is merged and 0.3.0 is published, test consumers against the exact
+Until this PR is merged and 0.4.0 is published, test consumers against the exact
 `pnpm pack` tarball from the reviewed source commit. Record its SHA-256 in each
 consumer PR and commit the lockfile. Do not claim registry publication for a
 candidate. Roll back package artifact, lockfile and adopted callers together to

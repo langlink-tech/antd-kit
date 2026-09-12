@@ -39,6 +39,14 @@
     "./s2": {
       "types": "./dist/s2.d.ts",
       "import": "./dist/s2.js"
+    },
+    "./feedback": {
+      "types": "./dist/feedback.d.ts",
+      "import": "./dist/feedback.js"
+    },
+    "./overlay": {
+      "types": "./dist/overlay.d.ts",
+      "import": "./dist/overlay.js"
     }
   },
   "scripts": {
