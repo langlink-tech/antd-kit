@@ -1,6 +1,6 @@
 {
   "name": "@langlink-tech/antd-kit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
   "type": "module",
   "description": "LangLink shared Ant Design component patterns",
@@ -20,6 +20,10 @@
       "types": "./dist/table.d.ts",
       "import": "./dist/table.js"
     },
+    "./pro-table": {
+      "types": "./dist/pro-table.d.ts",
+      "import": "./dist/pro-table.js"
+    },
     "./dashboard": {
       "types": "./dist/dashboard.d.ts",
       "import": "./dist/dashboard.js"
@@ -31,6 +35,10 @@
     "./navigation": {
       "types": "./dist/navigation.d.ts",
       "import": "./dist/navigation.js"
+    },
+    "./s2": {
+      "types": "./dist/s2.d.ts",
+      "import": "./dist/s2.js"
     }
   },
   "scripts": {
@@ -43,9 +51,13 @@
   "peerDependencies": {
     "antd": "^6.6.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "@ant-design/pro-components": "3.1.14-6",
+    "@antv/s2": "2.7.2"
   },
   "devDependencies": {
+    "@ant-design/pro-components": "3.1.14-6",
+    "@antv/s2": "2.7.2",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
@@ -59,5 +71,13 @@
   "publishConfig": {
     "access": "restricted",
     "registry": "https://npm.pkg.github.com"
+  },
+  "peerDependenciesMeta": {
+    "@ant-design/pro-components": {
+      "optional": true
+    },
+    "@antv/s2": {
+      "optional": true
+    }
   }
 }

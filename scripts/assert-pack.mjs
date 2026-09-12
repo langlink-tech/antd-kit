@@ -42,6 +42,15 @@ try {
     const source = readFileSync(path.join(unpackDir, "package", "dist", `${name}.js`), "utf8");
     if (/@ant-design\/pro-components|@antv\/s2/.test(source)) throw new Error(`optional dependency leaked into ${name}`);
   }
+  // Pro/S2 are deliberately installed only for their own entry-point probes.
+  for (const [scope, name] of [["@ant-design", "pro-components"], ["@antv", "s2"]]) {
+    mkdirSync(path.join(unpackDir, "node_modules", scope), { recursive: true });
+    symlinkSync(path.join(root, "node_modules", scope, name), path.join(unpackDir, "node_modules", scope, name), "dir");
+  }
+  for (const name of ["pro-table", "s2"]) {
+    execFileSync(process.execPath, ["--input-type=module", "-e",
+      `await import(${JSON.stringify(path.join(unpackDir, "package", "dist"))} + "/${name}.js")`], { stdio: "inherit" });
+  }
   console.log(`pack check ok: ${path.basename(tarballPath)}`);
 } finally {
   rmSync(unpackDir, { recursive: true, force: true });
