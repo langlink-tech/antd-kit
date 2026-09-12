@@ -1,9 +1,9 @@
 {
   "name": "@langlink-tech/antd-kit",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
-  "description": "LangLink shared Ant Design patterns. First ship is /motion only.",
+  "description": "LangLink shared Ant Design component patterns",
   "packageManager": "pnpm@11.10.0",
   "engines": {
     "node": ">=22 <23"
@@ -15,6 +15,22 @@
     "./motion": {
       "types": "./dist/motion.d.ts",
       "import": "./dist/motion.js"
+    },
+    "./table": {
+      "types": "./dist/table.d.ts",
+      "import": "./dist/table.js"
+    },
+    "./dashboard": {
+      "types": "./dist/dashboard.d.ts",
+      "import": "./dist/dashboard.js"
+    },
+    "./form": {
+      "types": "./dist/form.d.ts",
+      "import": "./dist/form.js"
+    },
+    "./navigation": {
+      "types": "./dist/navigation.d.ts",
+      "import": "./dist/navigation.js"
     }
   },
   "scripts": {
