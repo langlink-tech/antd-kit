@@ -1,3 +1,4 @@
+"use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Button, Flex, Modal, Space } from "antd";
 /** Official Form-in-Modal composition. Validation never closes the dialog. */

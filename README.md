@@ -59,6 +59,23 @@ optional peers; importing the other entries does not load either engine.
 | `/feedback` | `EmptyState`, `ContentLoading`, `PageResult` | [Empty](https://ant.design/components/empty/), [Skeleton](https://ant.design/components/skeleton/), [Spin](https://ant.design/components/spin/), [Result](https://ant.design/components/result/) |
 | `/overlay` | `FormDrawer`, `PreviewDialog`, `ConfirmAction`, `useAppConfirm` | [Form in Drawer](https://ant.design/components/form/), [Modal](https://ant.design/components/modal/), [Popconfirm](https://ant.design/components/popconfirm/), [App](https://ant.design/components/app/) |
 
+Library entries are client modules. Packed `dist/*.js` files keep a `"use client"`
+directive so a Next.js Server Component can import `EmptyState` without turning
+the whole page into a client shell. Optional Pro/S2 peers stay out of core
+entries.
+
+### Wrapper value
+
+| Export | Decision | Shared behavior | Native allowed | Current consumers |
+| --- | --- | --- | --- | --- |
+| `EmptyState` | keep | required `description`, optional `action` | no for page/table empty copy that needs a next action | ll-lqa-test, secure-files, antd-pro-clone |
+| `PageResult` | keep | page-level Result; extra actions stay host-owned | yes for inline/recoverable Alert | ll-lqa-test, antd-pro-clone exception pages |
+| `ConfirmAction` | keep | in-place Popconfirm; pending guard; async errors do not lock the control | `useAppConfirm()` for high-risk/irreversible | ll-lqa-test, secure-files |
+| `MetricCard` | keep | Statistic inside a Card plus optional trend | yes: native `Statistic` when a Card is the wrong chrome (hosts already pass `variant="borderless"`) | ll-lqa-test, antd-pro-clone, portal, plunet-chrome |
+
+Do not remove these exports in 0.4. Native Result/Statistic/Popconfirm remain
+legal; the completeness gate still inventories them.
+
 ```tsx
 import { DataTable } from '@langlink-tech/antd-kit/table';
 import { MetricCard, DashboardPanel } from '@langlink-tech/antd-kit/dashboard';
@@ -157,8 +174,10 @@ instructions in that PR. Documentation and CI-only fixes need no package bump.
 `pnpm verify` checks Changesets configuration, source behavior and the built pack.
 After the reviewed release PR merges, CI builds and publishes the exact manifest
 version, confirms registry metadata, then installs it in a cold store. The existing
-publish step never overwrites a published version. No automation creates commits
-or merges release PRs. See the [Changesets guide](https://changesets.dev/guide/getting-started).
+publish step never overwrites a published version. If the version is already on
+the registry, CI compares a stable exports/types/provenance fingerprint and
+fails when the contents differ; identical content may rerun. No automation
+creates commits or merges release PRs. See the [Changesets guide](https://changesets.dev/guide/getting-started).
 
 Dependency resolution enforces a seven-day minimum release age. Changesets 3.0.2
 was published on 2026-09-04 and met that gate before adoption on 2026-09-12.

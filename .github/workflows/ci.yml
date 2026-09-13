@@ -61,11 +61,7 @@ jobs:
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
           printf '@langlink-tech:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "${NODE_AUTH_TOKEN}" > "${HOME}/.npmrc"
-          if mise exec -- pnpm view "@langlink-tech/antd-kit@${VERSION}" version >/dev/null 2>&1; then
-            echo "${VERSION} already published"
-          else
-            mise exec -- pnpm publish --no-git-checks
-          fi
+          mise exec -- node scripts/assert-publish.mjs
           FOUND="$(mise exec -- pnpm view "@langlink-tech/antd-kit@${VERSION}" version)"
           test "${FOUND}" = "${VERSION}"
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
@@ -100,7 +96,16 @@ jobs:
           mise exec -- pnpm --dir "${WORK}" --store-dir "${STORE}" add "@langlink-tech/antd-kit@${VERSION}"
           (
             cd "${WORK}"
-            node --input-type=module -e "import { getServerReducedMotionSnapshot } from '@langlink-tech/antd-kit/motion'; if (getServerReducedMotionSnapshot() !== true) { process.exit(1); }"
+            node --input-type=module -e "
+              import { getServerReducedMotionSnapshot } from '@langlink-tech/antd-kit/motion';
+              import '@langlink-tech/antd-kit/table';
+              import '@langlink-tech/antd-kit/form';
+              import '@langlink-tech/antd-kit/dashboard';
+              import '@langlink-tech/antd-kit/navigation';
+              import '@langlink-tech/antd-kit/feedback';
+              import '@langlink-tech/antd-kit/overlay';
+              if (getServerReducedMotionSnapshot() !== true) process.exit(1);
+            "
           )
           mise exec -- pnpm --dir "${WORK}" --store-dir "${STORE}" remove "@langlink-tech/antd-kit"
           if (cd "${WORK}" && node --input-type=module -e "import '@langlink-tech/antd-kit/motion'"); then

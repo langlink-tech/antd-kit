@@ -69,7 +69,9 @@ it("keeps dashboard error recovery separate from its data", () => {
  expect(screen.getByRole("button",{name:"Reload"})).toBeTruthy();
  expect(screen.queryByText("Stale data")).toBeNull();
  view.rerender(<MetricCard statistic={{title:"Completed",value:12}} trend={<span>Up this month</span>} />);
+ expect(screen.getByText("Completed")).toBeTruthy();
  expect(screen.getByText("12")).toBeTruthy();
+ expect(screen.getByText("Up this month")).toBeTruthy();
 });
 
 it("exposes a named navigation landmark and preserves controlled selection", () => {

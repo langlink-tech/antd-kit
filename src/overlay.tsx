@@ -1,5 +1,7 @@
+"use client";
+
 import { App, Button, Drawer, Modal, Popconfirm, Space, type DrawerProps, type FormInstance, type ModalProps, type PopconfirmProps } from "antd";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 export interface FormDrawerProps extends Omit<DrawerProps, "onClose"> {
   form?: FormInstance;
@@ -48,8 +50,27 @@ export function PreviewDialog({ destroyOnHidden = true, ...props }: PreviewDialo
 export type ConfirmActionProps = PopconfirmProps;
 
 /** Light, recoverable in-place confirm. High-risk or irreversible decisions use useAppConfirm(). */
-export function ConfirmAction({ title, ...props }: ConfirmActionProps) {
-  return <Popconfirm title={title} {...props} />;
+export function ConfirmAction({ title, onConfirm, okButtonProps, ...props }: ConfirmActionProps) {
+  const [pending, setPending] = useState(false);
+  async function confirm(...args: Parameters<NonNullable<PopconfirmProps["onConfirm"]>>) {
+    if (pending) return;
+    setPending(true);
+    try {
+      await onConfirm?.(...args);
+    } catch {
+      return;
+    } finally {
+      setPending(false);
+    }
+  }
+  return (
+    <Popconfirm
+      title={title}
+      {...props}
+      onConfirm={confirm}
+      okButtonProps={{ ...okButtonProps, loading: pending || okButtonProps?.loading }}
+    />
+  );
 }
 
 /** Context-aware Modal.confirm. Callers must render under App. */

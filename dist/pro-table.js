@@ -1,3 +1,4 @@
+"use client";
 import { jsx as _jsx } from "react/jsx-runtime";
 import { ProTable } from "@ant-design/pro-components";
 export function QueryTable({ pagination, rowSelection, ...props }) {

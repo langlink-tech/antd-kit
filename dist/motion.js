@@ -1,3 +1,4 @@
+"use client";
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useSyncExternalStore, } from "react";
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";

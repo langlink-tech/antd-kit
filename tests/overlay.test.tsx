@@ -38,6 +38,45 @@ describe("overlay shells", () => {
     fireEvent.click(await screen.findByRole("button", { name: "OK" }));
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
   });
+
+  it("does not double-submit while confirm is pending", async () => {
+    let release: (value?: unknown) => void = () => undefined;
+    const confirm = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    render(
+      <ConfirmAction title="Delete row?" onConfirm={confirm}>
+        <button>Delete</button>
+      </ConfirmAction>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    fireEvent.click(screen.getByRole("button", { name: /OK/ }));
+    expect(confirm).toHaveBeenCalledOnce();
+    release();
+    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+  });
+
+  it("allows another confirm after an async error", async () => {
+    const confirm = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("busy"))
+      .mockResolvedValueOnce(undefined);
+    render(
+      <ConfirmAction title="Delete row?" onConfirm={confirm}>
+        <button>Delete</button>
+      </ConfirmAction>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    await waitFor(() => expect(confirm).toHaveBeenCalledTimes(2));
+  });
 });
 
 it("reads Modal.confirm from App instead of the static API", async () => {

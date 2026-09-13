@@ -3,10 +3,17 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { packageFingerprint } from "./package-fingerprint.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 execFileSync("pnpm", ["build"], { cwd: root, stdio: "inherit" });
+const firstFingerprint = packageFingerprint(root);
+execFileSync("pnpm", ["build"], { cwd: root, stdio: "inherit" });
+const secondFingerprint = packageFingerprint(root);
+if (firstFingerprint !== secondFingerprint) {
+  throw new Error("pack fingerprint is not stable across identical rebuilds");
+}
 const packed = execFileSync("pnpm", ["pack"], {
   cwd: root,
   encoding: "utf8",
@@ -40,7 +47,14 @@ try {
   }
   for (const name of ["motion", "table", "form", "dashboard", "navigation", "feedback", "overlay"]) {
     const source = readFileSync(path.join(unpackDir, "package", "dist", `${name}.js`), "utf8");
+    if (!source.startsWith('"use client"') && !source.startsWith("'use client'")) {
+      throw new Error(`packed ${name}.js lost its client directive`);
+    }
     if (/@ant-design\/pro-components|@antv\/s2/.test(source)) throw new Error(`optional dependency leaked into ${name}`);
+  }
+  const packedFingerprint = packageFingerprint(path.join(unpackDir, "package"));
+  if (packedFingerprint !== firstFingerprint) {
+    throw new Error("packed fingerprint differs from the local build");
   }
   // Pro/S2 are deliberately installed only for their own entry-point probes.
   for (const [scope, name] of [["@ant-design", "pro-components"], ["@antv", "s2"]]) {
