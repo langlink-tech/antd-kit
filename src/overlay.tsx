@@ -56,13 +56,20 @@ export function ConfirmAction({ title, onConfirm, okButtonProps, ...props }: Con
   function confirm(...args: Parameters<NonNullable<PopconfirmProps["onConfirm"]>>) {
     if (inflight.current) return inflight.current;
     setPending(true);
-    const result = Promise.resolve(onConfirm?.(...args)).then(() => undefined);
+    let result: Promise<void>;
+    try {
+      result = Promise.resolve(onConfirm?.(...args)).then(() => undefined);
+    } catch (error) {
+      result = Promise.reject(error);
+    }
     inflight.current = result;
     void result.catch(() => undefined);
-    void result.finally(() => {
-      inflight.current = null;
-      setPending(false);
-    });
+    void result
+      .finally(() => {
+        inflight.current = null;
+        setPending(false);
+      })
+      .catch(() => undefined);
     return result;
   }
   return (

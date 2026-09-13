@@ -70,7 +70,7 @@ entries.
 | --- | --- | --- | --- |
 | `EmptyState` | keep | required `description`, optional `action` | native Empty only when there is no next-action contract |
 | `PageResult` | keep | page-level Result; `extra` stays host-owned | native Result or Alert for inline recovery |
-| `ConfirmAction` | keep | in-place Popconfirm; shared inflight promise (success closes, rejection stays open) | `useAppConfirm()` for high-risk/irreversible |
+| `ConfirmAction` | keep | in-place Popconfirm; shared inflight promise (success closes, async reject and sync throw stay open and clear pending) | `useAppConfirm()` for high-risk/irreversible |
 | `MetricCard` | keep | Statistic in a Card plus optional `trend` | native `Statistic` when Card chrome is wrong |
 
 Do not remove these exports in 0.4. Return the `onConfirm` promise so rejection

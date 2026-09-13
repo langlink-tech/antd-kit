@@ -30,13 +30,21 @@ export function ConfirmAction({ title, onConfirm, okButtonProps, ...props }) {
         if (inflight.current)
             return inflight.current;
         setPending(true);
-        const result = Promise.resolve(onConfirm?.(...args)).then(() => undefined);
+        let result;
+        try {
+            result = Promise.resolve(onConfirm?.(...args)).then(() => undefined);
+        }
+        catch (error) {
+            result = Promise.reject(error);
+        }
         inflight.current = result;
         void result.catch(() => undefined);
-        void result.finally(() => {
+        void result
+            .finally(() => {
             inflight.current = null;
             setPending(false);
-        });
+        })
+            .catch(() => undefined);
         return result;
     }
     return (_jsx(Popconfirm, { title: title, ...props, onConfirm: confirm, okButtonProps: { ...okButtonProps, loading: pending || okButtonProps?.loading } }));
