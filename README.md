@@ -66,15 +66,38 @@ entries.
 
 ### Wrapper value
 
-| Export | Decision | Shared behavior | Native allowed | Current consumers |
-| --- | --- | --- | --- | --- |
-| `EmptyState` | keep | required `description`, optional `action` | no for page/table empty copy that needs a next action | ll-lqa-test, secure-files, antd-pro-clone |
-| `PageResult` | keep | page-level Result; extra actions stay host-owned | yes for inline/recoverable Alert | ll-lqa-test, antd-pro-clone exception pages |
-| `ConfirmAction` | keep | in-place Popconfirm; pending guard; async errors do not lock the control | `useAppConfirm()` for high-risk/irreversible | ll-lqa-test, secure-files |
-| `MetricCard` | keep | Statistic inside a Card plus optional trend | yes: native `Statistic` when a Card is the wrong chrome (hosts already pass `variant="borderless"`) | ll-lqa-test, antd-pro-clone, portal, plunet-chrome |
+| Export | Decision | Shared behavior | Native allowed |
+| --- | --- | --- | --- |
+| `EmptyState` | keep | required `description`, optional `action` | native Empty only when there is no next-action contract |
+| `PageResult` | keep | page-level Result; `extra` stays host-owned | native Result or Alert for inline recovery |
+| `ConfirmAction` | keep | in-place Popconfirm; shared inflight promise (success closes, rejection stays open) | `useAppConfirm()` for high-risk/irreversible |
+| `MetricCard` | keep | Statistic in a Card plus optional `trend` | native `Statistic` when Card chrome is wrong |
 
-Do not remove these exports in 0.4. Native Result/Statistic/Popconfirm remain
-legal; the completeness gate still inventories them.
+Do not remove these exports in 0.4. Return the `onConfirm` promise so rejection
+stays a rejection. `void onConfirm()` at a call site drops that signal.
+
+#### Consumer props map (read-only; this PR does not edit hosts)
+
+| Export | Host path | Props actually passed |
+| --- | --- | --- |
+| `EmptyState` | `ll-lqa-test/src/pages/admin/AdminTestsPage.tsx` | `description`, `action` (create button) |
+| `EmptyState` | `ll-lqa-test/src/pages/admin/AdminPeoplePage.tsx` | `description` only on no-matches |
+| `EmptyState` | `secure-files-cloudflare/src/frontend/App.tsx` | `description`; table `emptyText` slot |
+| `EmptyState` | `langlink-tech-portal/frontend/src/pages/ToolsPage.tsx` | empty/filter empty copy |
+| `PageResult` | `ll-lqa-test/src/pages/NotFoundPage.tsx` | `status="404"`, `title`, `subTitle`, `extra` (back button) |
+| `PageResult` | `langlink-tech-portal/frontend/src/App.tsx` | `status="404"`, `title`, `subTitle`, `extra` |
+| `PageResult` | `antd-pro-clone/src/pages/exception/404/index.tsx` | imported as `Result`; `status`, `title`, `subTitle`, `extra` |
+| `ConfirmAction` | `ll-lqa-test/src/pages/admin/AdminTestsPage.tsx` | `title`, `description`, `okText`, `cancelText`, `okButtonProps.danger`, `onConfirm` |
+| `ConfirmAction` | `secure-files-cloudflare/src/frontend/App.tsx` | `title` (JSX), `onConfirm` wrapping delete |
+| `ConfirmAction` | `secure-files-cloudflare/src/frontend/operations/OperationsPanel.tsx` | `title`, `onConfirm` retry/replay |
+| `MetricCard` | `ll-lqa-test/src/pages/admin/AdminDashboardPage.tsx` | `statistic={{ title, value }}` |
+| `MetricCard` | `langlink-tech-portal/frontend/src/pages/HomePage.tsx` | `variant="borderless"`, `styles.body.padding: 0`, `statistic` |
+| `MetricCard` | `antd-pro-clone/src/pages/dashboard/workplace/index.tsx` | same borderless/zero-padding Statistic chrome |
+| `MetricCard` | `plunet-chrome-plugin/src/sidepanel/components/OrderHealthPanel.tsx` | borderless Statistic counts |
+
+Hosts that pass `variant="borderless"` and zero padding are the documented
+Statistic carve-out: they may keep MetricCard or switch to native Statistic
+without a library removal.
 
 ```tsx
 import { DataTable } from '@langlink-tech/antd-kit/table';

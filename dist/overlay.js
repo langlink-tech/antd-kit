@@ -1,7 +1,7 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { App, Button, Drawer, Modal, Popconfirm, Space } from "antd";
-import { useState } from "react";
+import { useRef, useState } from "react";
 /** Official Form-in-Drawer. Validation never closes the drawer. Navigation drawers stay native. */
 export function FormDrawer({ form, onOk, onClose, okText = "OK", cancelText = "Cancel", confirmLoading, destroyOnHidden = true, footer, children, ...props }) {
     async function submit() {
@@ -25,19 +25,19 @@ export function PreviewDialog({ destroyOnHidden = true, ...props }) {
 /** Light, recoverable in-place confirm. High-risk or irreversible decisions use useAppConfirm(). */
 export function ConfirmAction({ title, onConfirm, okButtonProps, ...props }) {
     const [pending, setPending] = useState(false);
-    async function confirm(...args) {
-        if (pending)
-            return;
+    const inflight = useRef(null);
+    function confirm(...args) {
+        if (inflight.current)
+            return inflight.current;
         setPending(true);
-        try {
-            await onConfirm?.(...args);
-        }
-        catch {
-            return;
-        }
-        finally {
+        const result = Promise.resolve(onConfirm?.(...args)).then(() => undefined);
+        inflight.current = result;
+        void result.catch(() => undefined);
+        void result.finally(() => {
+            inflight.current = null;
             setPending(false);
-        }
+        });
+        return result;
     }
     return (_jsx(Popconfirm, { title: title, ...props, onConfirm: confirm, okButtonProps: { ...okButtonProps, loading: pending || okButtonProps?.loading } }));
 }

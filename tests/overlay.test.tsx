@@ -31,12 +31,18 @@ describe("overlay shells", () => {
     expect(screen.queryByRole("button", { name: "OK" })).toBeNull();
   });
 
-  it("keeps light confirms in place", async () => {
-    const confirm = vi.fn();
-    render(<ConfirmAction title="Delete row?" onConfirm={confirm}><button>Delete</button></ConfirmAction>);
+  it("closes after a successful confirm", async () => {
+    const confirm = vi.fn().mockResolvedValue(undefined);
+    const onOpenChange = vi.fn();
+    render(
+      <ConfirmAction title="Delete row?" onConfirm={confirm} onOpenChange={onOpenChange}>
+        <button>Delete</button>
+      </ConfirmAction>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(await screen.findByRole("button", { name: "OK" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
   });
 
   it("does not double-submit while confirm is pending", async () => {
@@ -55,27 +61,34 @@ describe("overlay shells", () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
     fireEvent.click(screen.getByRole("button", { name: /OK/ }));
-    expect(confirm).toHaveBeenCalledOnce();
+    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
     release();
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
   });
 
-  it("allows another confirm after an async error", async () => {
+  it("keeps the confirm open after rejection and retries in place", async () => {
     const confirm = vi
       .fn()
-      .mockRejectedValueOnce(new Error("busy"))
+      .mockImplementationOnce(async () => {
+        throw new Error("busy");
+      })
       .mockResolvedValueOnce(undefined);
+    const onOpenChange = vi.fn();
     render(
-      <ConfirmAction title="Delete row?" onConfirm={confirm}>
+      <ConfirmAction title="Delete row?" onConfirm={confirm} onOpenChange={onOpenChange}>
         <button>Delete</button>
       </ConfirmAction>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    await expect(confirm.mock.results[0]?.value).rejects.toThrow("busy");
+    expect(onOpenChange.mock.calls.some((call) => call[0] === false)).toBe(false);
+    const retry = await screen.findByRole("button", { name: /^OK$/ });
+    expect(retry).toBeTruthy();
+    fireEvent.click(retry);
     await waitFor(() => expect(confirm).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
   });
 });
 
