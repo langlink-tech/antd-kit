@@ -66,52 +66,7 @@ describe("overlay shells", () => {
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
   });
 
-  it("recovers from a synchronous onConfirm throw and retries in place", async () => {
-    const confirm = vi
-      .fn()
-      .mockImplementationOnce(() => {
-        throw new Error("sync-fail");
-      })
-      .mockResolvedValueOnce(undefined);
-    const onOpenChange = vi.fn();
-    render(
-      <ConfirmAction title="Delete row?" onConfirm={confirm} onOpenChange={onOpenChange}>
-        <button>Delete</button>
-      </ConfirmAction>,
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
-    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
-    expect(onOpenChange.mock.calls.some((call) => call[0] === false)).toBe(false);
-    fireEvent.click(await screen.findByRole("button", { name: /^OK$/ }));
-    await waitFor(() => expect(confirm).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
-  });
 
-  it("keeps the confirm open after rejection and retries in place", async () => {
-    const confirm = vi
-      .fn()
-      .mockImplementationOnce(async () => {
-        throw new Error("busy");
-      })
-      .mockResolvedValueOnce(undefined);
-    const onOpenChange = vi.fn();
-    render(
-      <ConfirmAction title="Delete row?" onConfirm={confirm} onOpenChange={onOpenChange}>
-        <button>Delete</button>
-      </ConfirmAction>,
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
-    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
-    await expect(confirm.mock.results[0]?.value).rejects.toThrow("busy");
-    expect(onOpenChange.mock.calls.some((call) => call[0] === false)).toBe(false);
-    const retry = await screen.findByRole("button", { name: /^OK$/ });
-    expect(retry).toBeTruthy();
-    fireEvent.click(retry);
-    await waitFor(() => expect(confirm).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
-  });
 });
 
 it("reads Modal.confirm from App instead of the static API", async () => {

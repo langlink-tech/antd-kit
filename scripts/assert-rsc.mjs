@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const { packageManager } = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
 execFileSync("pnpm", ["build"], { cwd: root, stdio: "inherit" });
 const packed = execFileSync("pnpm", ["pack"], { cwd: root, encoding: "utf8" })
   .trim()
@@ -23,6 +24,7 @@ try {
         name: "antd-kit-rsc-host",
         private: true,
         type: "module",
+        packageManager,
         dependencies: {
           "@langlink-tech/antd-kit": `file:${tarballPath}`,
           antd: "6.6.2",
