@@ -59,6 +59,46 @@ optional peers; importing the other entries does not load either engine.
 | `/feedback` | `EmptyState`, `ContentLoading`, `PageResult` | [Empty](https://ant.design/components/empty/), [Skeleton](https://ant.design/components/skeleton/), [Spin](https://ant.design/components/spin/), [Result](https://ant.design/components/result/) |
 | `/overlay` | `FormDrawer`, `PreviewDialog`, `ConfirmAction`, `useAppConfirm` | [Form in Drawer](https://ant.design/components/form/), [Modal](https://ant.design/components/modal/), [Popconfirm](https://ant.design/components/popconfirm/), [App](https://ant.design/components/app/) |
 
+Library entries are client modules. Packed `dist/*.js` files keep a `"use client"`
+directive so a Next.js Server Component can import `EmptyState` without turning
+the whole page into a client shell. Optional Pro/S2 peers stay out of core
+entries.
+
+### Wrapper value
+
+| Export | Decision | Shared behavior | Native allowed |
+| --- | --- | --- | --- |
+| `EmptyState` | keep | required `description`, optional `action` | native Empty only when there is no next-action contract |
+| `PageResult` | keep | page-level Result; `extra` stays host-owned | native Result or Alert for inline recovery |
+| `ConfirmAction` | keep | in-place Popconfirm; shared inflight promise (success closes, async reject and sync throw stay open and clear pending) | `useAppConfirm()` for high-risk/irreversible |
+| `MetricCard` | keep | Statistic in a Card plus optional `trend` | native `Statistic` when Card chrome is wrong |
+
+Do not remove these exports in 0.4. Return the `onConfirm` promise so rejection
+stays a rejection. `void onConfirm()` at a call site drops that signal.
+
+#### Consumer props map (read-only; this PR does not edit hosts)
+
+| Export | Host path | Props actually passed |
+| --- | --- | --- |
+| `EmptyState` | `ll-lqa-test/src/pages/admin/AdminTestsPage.tsx` | `description`, `action` (create button) |
+| `EmptyState` | `ll-lqa-test/src/pages/admin/AdminPeoplePage.tsx` | `description` only on no-matches |
+| `EmptyState` | `secure-files-cloudflare/src/frontend/App.tsx` | `description`; table `emptyText` slot |
+| `EmptyState` | `langlink-tech-portal/frontend/src/pages/ToolsPage.tsx` | empty/filter empty copy |
+| `PageResult` | `ll-lqa-test/src/pages/NotFoundPage.tsx` | `status="404"`, `title`, `subTitle`, `extra` (back button) |
+| `PageResult` | `langlink-tech-portal/frontend/src/App.tsx` | `status="404"`, `title`, `subTitle`, `extra` |
+| `PageResult` | `antd-pro-clone/src/pages/exception/404/index.tsx` | imported as `Result`; `status`, `title`, `subTitle`, `extra` |
+| `ConfirmAction` | `ll-lqa-test/src/pages/admin/AdminTestsPage.tsx` | `title`, `description`, `okText`, `cancelText`, `okButtonProps.danger`, `onConfirm` |
+| `ConfirmAction` | `secure-files-cloudflare/src/frontend/App.tsx` | `title` (JSX), `onConfirm` wrapping delete |
+| `ConfirmAction` | `secure-files-cloudflare/src/frontend/operations/OperationsPanel.tsx` | `title`, `onConfirm` retry/replay |
+| `MetricCard` | `ll-lqa-test/src/pages/admin/AdminDashboardPage.tsx` | `statistic={{ title, value }}` |
+| `MetricCard` | `langlink-tech-portal/frontend/src/pages/HomePage.tsx` | `variant="borderless"`, `styles.body.padding: 0`, `statistic` |
+| `MetricCard` | `antd-pro-clone/src/pages/dashboard/workplace/index.tsx` | same borderless/zero-padding Statistic chrome |
+| `MetricCard` | `plunet-chrome-plugin/src/sidepanel/components/OrderHealthPanel.tsx` | borderless Statistic counts |
+
+Hosts that pass `variant="borderless"` and zero padding are the documented
+Statistic carve-out: they may keep MetricCard or switch to native Statistic
+without a library removal.
+
 ```tsx
 import { DataTable } from '@langlink-tech/antd-kit/table';
 import { MetricCard, DashboardPanel } from '@langlink-tech/antd-kit/dashboard';
@@ -157,8 +197,10 @@ instructions in that PR. Documentation and CI-only fixes need no package bump.
 `pnpm verify` checks Changesets configuration, source behavior and the built pack.
 After the reviewed release PR merges, CI builds and publishes the exact manifest
 version, confirms registry metadata, then installs it in a cold store. The existing
-publish step never overwrites a published version. No automation creates commits
-or merges release PRs. See the [Changesets guide](https://changesets.dev/guide/getting-started).
+publish step never overwrites a published version. If the version is already on
+the registry, CI compares a stable exports/types/provenance fingerprint and
+fails when the contents differ; identical content may rerun. No automation
+creates commits or merges release PRs. See the [Changesets guide](https://changesets.dev/guide/getting-started).
 
 Dependency resolution enforces a seven-day minimum release age. Changesets 3.0.2
 was published on 2026-09-04 and met that gate before adoption on 2026-09-12.

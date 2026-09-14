@@ -1,3 +1,5 @@
+"use client";
+
 import { usePrefersReducedMotion } from "./motion.js";
 import { Alert, Card, Empty, Skeleton, Statistic, type CardProps, type StatisticProps, theme } from "antd";
 import type { ReactNode } from "react";

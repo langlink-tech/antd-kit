@@ -31,13 +31,42 @@ describe("overlay shells", () => {
     expect(screen.queryByRole("button", { name: "OK" })).toBeNull();
   });
 
-  it("keeps light confirms in place", async () => {
-    const confirm = vi.fn();
-    render(<ConfirmAction title="Delete row?" onConfirm={confirm}><button>Delete</button></ConfirmAction>);
+  it("closes after a successful confirm", async () => {
+    const confirm = vi.fn().mockResolvedValue(undefined);
+    const onOpenChange = vi.fn();
+    render(
+      <ConfirmAction title="Delete row?" onConfirm={confirm} onOpenChange={onOpenChange}>
+        <button>Delete</button>
+      </ConfirmAction>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(await screen.findByRole("button", { name: "OK" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+  });
+
+  it("does not double-submit while confirm is pending", async () => {
+    let release: (value?: unknown) => void = () => undefined;
+    const confirm = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    render(
+      <ConfirmAction title="Delete row?" onConfirm={confirm}>
+        <button>Delete</button>
+      </ConfirmAction>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    fireEvent.click(await screen.findByRole("button", { name: /OK/ }));
+    fireEvent.click(screen.getByRole("button", { name: /OK/ }));
+    await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+    release();
     await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
   });
+
+
 });
 
 it("reads Modal.confirm from App instead of the static API", async () => {

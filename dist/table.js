@@ -1,3 +1,4 @@
+"use client";
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
 import { Empty, Table } from "antd";
 export function DataTable({ emptyState, locale, loading, ...props }) {

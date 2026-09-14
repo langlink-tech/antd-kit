@@ -26,7 +26,7 @@ describe("empty and loading surfaces", () => {
   });
 });
 
-it("renders a page-level result with at most the host extra actions", () => {
+it("renders a page-level result and keeps host extra actions", () => {
   render(<PageResult status="404" title="Missing" extra={<a href="/">Home</a>} />);
   expect(screen.getByText("Missing")).toBeTruthy();
   expect(screen.getByRole("link", { name: "Home" })).toBeTruthy();

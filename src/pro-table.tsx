@@ -1,3 +1,5 @@
+"use client";
+
 import { ProTable, type ProTableProps, type ParamsType } from "@ant-design/pro-components";
 
 /** Management query-table policy; request, filters, selection and exports stay local. */

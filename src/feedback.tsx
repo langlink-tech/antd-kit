@@ -1,8 +1,12 @@
+"use client";
+
 import { Empty, Result, Skeleton, Spin, type EmptyProps, type ResultProps } from "antd";
 import type { ReactNode } from "react";
 import { usePrefersReducedMotion } from "./motion.js";
 
-export interface EmptyStateProps extends EmptyProps {
+export interface EmptyStateProps extends Omit<EmptyProps, "description"> {
+  /** Required empty copy. Loading failure is not an empty state. */
+  description: ReactNode;
   /** Host-owned next action: create the first row, clear filters, or retry. */
   action?: ReactNode;
 }

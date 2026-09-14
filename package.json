@@ -1,6 +1,6 @@
 {
   "name": "@langlink-tech/antd-kit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "type": "module",
   "description": "LangLink shared Ant Design component patterns",
@@ -50,14 +50,15 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/stamp-client.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "pack:check": "node scripts/assert-pack.mjs",
-    "verify": "pnpm release:status && pnpm typecheck && pnpm test && pnpm pack:check",
+    "verify": "pnpm release:status && pnpm typecheck && pnpm test && pnpm pack:check && pnpm rsc:check",
+    "rsc:check": "node scripts/assert-rsc.mjs",
     "changeset": "changeset",
     "version:packages": "changeset version",
-    "release:status": "changeset status --since origin/main"
+    "release:status": "node scripts/assert-changeset-status.mjs"
   },
   "peerDependencies": {
     "antd": "^6.6.1",

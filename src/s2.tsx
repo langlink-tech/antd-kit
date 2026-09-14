@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Alert, Spin } from "antd";
 import type { PivotSheet, S2DataConfig, S2Options, ThemeCfg } from "@antv/s2";

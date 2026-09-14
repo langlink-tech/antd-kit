@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Flex, Modal, Space, type ButtonProps, type FormInstance, type ModalProps } from "antd";
 import type { ReactNode } from "react";
 

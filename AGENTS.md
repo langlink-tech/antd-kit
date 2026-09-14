@@ -15,6 +15,7 @@ LangLink shared Ant Design pattern library. Exports are motion, table, pro-table
 - ProTable and S2 must stay in isolated optional-peer entries.
 - The fleet expansion contract and source inventory are in dotfiles/specs/antd-shared-component-library-2026-09/fleet-governance-wave-2-2026-09.md.
 - Hosts keep root providers, locale, and theme persistence.
+- Library entries are client modules. Built `dist/*.js` files must start with `"use client"`. Host Server Components may import them; do not add a whole-app client shell.
 - Do not store tokens, credentials, or publish logs in the repository.
 
 ## Validation

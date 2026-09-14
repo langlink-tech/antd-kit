@@ -1,3 +1,4 @@
+"use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { usePrefersReducedMotion } from "./motion.js";
 import { Alert, Card, Empty, Skeleton, Statistic, theme } from "antd";

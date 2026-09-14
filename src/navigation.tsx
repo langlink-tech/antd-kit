@@ -1,3 +1,5 @@
+"use client";
+
 import { Menu, type MenuProps } from "antd";
 import type { AriaAttributes, HTMLAttributes } from "react";
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { Empty, Table, type TableProps } from "antd";
 import type { ReactNode, Ref } from "react";
 import type { TableRef } from "antd/es/table/index.js";
